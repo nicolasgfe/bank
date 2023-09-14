@@ -36,6 +36,12 @@ public class User {
 
     @Column(name = "senha", nullable = false, length = 100)
     private String senha;
+    @Column(name = "birth")
+    private Date birth;
+    @Column(name = "cpf")
+    private String cpf;
+    @Column(name = "isactive")
+    private Boolean isActive;
 
     @Column(name = "criado_em", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -51,4 +57,11 @@ public class User {
     @Column(name = "alterado_por")
     @LastModifiedBy
     private String alteradoPor;
+
+    @OneToOne(mappedBy = "user",
+            targetEntity = Account.class,
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Account user;
 }

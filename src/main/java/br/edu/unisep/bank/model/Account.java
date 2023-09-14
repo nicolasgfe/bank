@@ -19,8 +19,8 @@ public class Account {
     @Column(name = "saldo")
     private Float saldo;
     @OneToOne
-    @JoinColumn(name = "owner")
-    private Owner owner;
+    @JoinColumn(name = "user")
+    private User user;
     @Column(name = "isActive")
     private boolean isActive;
 }

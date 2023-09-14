@@ -41,6 +41,7 @@ public class UserController {
 
     @PostMapping("/usuarios")
     public User createUser(@Validated @RequestBody User user){
+        user.setIsActive(true);
         return repository.save(user);
     }
 
@@ -56,6 +57,9 @@ public class UserController {
         user.setNome(detalhes.getNome());
         user.setSenha(detalhes.getSenha());
         user.setAlteradoEm(new Date());
+        user.setCpf(detalhes.getCpf());
+        user.setBirth(detalhes.getBirth());
+        user.setIsActive(detalhes.getIsActive());
         final User updatedUser = repository.save(user);
         return ResponseEntity.ok(updatedUser);
     }
