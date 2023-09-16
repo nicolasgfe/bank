@@ -17,7 +17,7 @@ public class Account {
     @Column(name = "numberAccount")
     private Long numberAccount;
     @Column(name = "saldo")
-    private Float saldo;
+    private Double saldo;
     @OneToOne
     @JoinColumn(name = "user")
     private User user;
