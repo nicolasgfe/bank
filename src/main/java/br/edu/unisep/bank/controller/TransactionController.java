@@ -88,7 +88,7 @@ public class TransactionController {
         UserDetails username = (UserDetails) auth.getPrincipal();
         String teste = username.getUsername();
         Optional<Account> account = accountRepository.findById(accountId);
-        if (body.getValue() >= 0) {
+        if (body.getValue() <= 0) {
             return "O valor do saque não pode ser menor que zero!";
         }
 
@@ -98,4 +98,43 @@ public class TransactionController {
         }
         return "Você não tem permissão para ver saldo de outra conta!";
     }
+
+//    @PostMapping("/transacao/deposito/{id}")
+//    public String deposito(@PathVariable(value = "id") Long accountId, @RequestBody Saque body) throws Exception{
+//        //será  implementado para o mesmo pegar o id da conta pelo relacionamento com a conta. Ao inves de passar por parametros
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        UserDetails username = (UserDetails) auth.getPrincipal();
+//        String teste = username.getUsername();
+//        Optional<Account> account = Optional.ofNullable(accountRepository.findById(accountId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Conta nao encontrada: " + accountId.toString())));;
+//        if (body.getValue() <= 0) {
+//            return "O valor do deposito não pode ser menor que zero!";
+//        }
+//
+//        String data = accountUseCase.deposito(account, body.getValue());
+//        return data;
+//    }
+@PostMapping("/transacao/deposito/{id}")
+public String deposito(@PathVariable(value = "id") Long accountId, @RequestBody Saque body) throws Exception {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    UserDetails userDetails = (UserDetails) auth.getPrincipal();
+    String username = userDetails.getUsername();
+
+    Optional<Account> accountOptional = accountRepository.findById(accountId);
+    if (accountOptional.isPresent()) {
+        Account account = accountOptional.get();
+        if (body.getValue() > 0) {
+            String data = accountUseCase.deposito(account, body.getValue());
+            accountRepository.save(account);
+            return data;
+        } else {
+            return "O valor do depósito não pode ser menor ou igual a zero!";
+        }
+    } else {
+        throw new ResourceNotFoundException("Conta não encontrada: " + accountId);
+    }
+}
+
+
+
 }

@@ -34,7 +34,7 @@ public class AccountController {
 
     @PostMapping("/conta")
     public Account createAccount(@Validated @RequestBody Account account){
-        account.setSaldo(0.00);
+//        account.setSaldo(0.00);
         return repository.save(account);
     }
 
@@ -46,6 +46,7 @@ public class AccountController {
                 .orElseThrow(()->
                         new ResourceNotFoundException("Conta nao encontrada: " + accountId));
         account.setUser(detalhes.getUser());
+        account.setSaldo(detalhes.getSaldo());
         account.setNumberAccount(detalhes.getNumberAccount());
         account.setActive(true);
         final Account updatedUser = repository.save(account);

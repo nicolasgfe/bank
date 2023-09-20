@@ -14,12 +14,14 @@ public class AccountUseCase {
 
         return "Saldo insuficiente!" ;
     }
-    public String transferencia() {
-        return "transferencia";
+    public String transftransferenciaerencia() {
+        return "";
     }
 
-    public String deposito() {
-        return "deposito";
+    public String deposito(Account account, Double value) {
+        Double newValue = account.getSaldo() + value;
+        account.setSaldo(newValue);
+        return account.getSaldo().toString();
     }
 
     public String extrato () {
