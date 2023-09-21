@@ -103,6 +103,27 @@ public class TransactionController {
         return "data";
     }
 
+    @PostMapping("/transacao/saque/{id}")
+    public String saque(@PathVariable(value = "id") Long accountId, @RequestBody Saque body) throws Exception{
+        //será  implementado para o mesmo pegar o id da conta pelo relacionamento com a conta. Ao inves de passar por parametros
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails username = (UserDetails) auth.getPrincipal();
+        String teste = username.getUsername();
+        Optional<Account> accountOptional = accountRepository.findById(accountId);
+        Account account = accountOptional.get();
+//        if (body.getValue() >= 0) {
+//            return "O valor do saque não pode ser menor que zero!";
+//        }
+
+//        if (account.getUser().getUsername().equals(teste)) {
+        String data = accountUseCase.saque(account, body.getValue());
+//        }
+        accountRepository.save(account);
+        return data;
+//        return "Você não tem permissão para ver saldo de outra conta!";
+    }
+
+
     @PostMapping("/transacao/deposito/{id}")
     public String deposito(@PathVariable(value = "id") Long accountId, @RequestBody Saque body) throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
