@@ -1,9 +1,11 @@
 package br.edu.unisep.bank.model;
 
+import br.edu.unisep.bank.Enum.TipoTransacao;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Set;
 
 @Entity
 @Table(name = "transaction")
@@ -13,16 +15,17 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @NotNull
-    @Column(name = "remetente")
+    @Column(name = "remetente", nullable = false)
     private String remetente;
     @Column(name = "destinatario")
     private String destinatario;
-    @NotNull
-    @Column(name = "valor")
-    private float valor;
-    @ManyToOne
-    @NotNull
-    @JoinColumn(name = "typeTransactionId")
-    private TypeTransaction typeTransactionId;
+    @Column(name = "valor", nullable = false)
+    private Double valor;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoTransacao tipoTransacao;
+
+    public Transaction() {
+
+    }
 }

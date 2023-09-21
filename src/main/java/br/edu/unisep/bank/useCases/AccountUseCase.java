@@ -1,18 +1,27 @@
 package br.edu.unisep.bank.useCases;
 
+import br.edu.unisep.bank.Enum.TipoTransacao;
 import br.edu.unisep.bank.model.Account;
+import br.edu.unisep.bank.model.Transaction;
+import br.edu.unisep.bank.model.User;
+import br.edu.unisep.bank.repository.TransactionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Optional;
 
 public class AccountUseCase {
-    public String saque(Account acount, Double value) {
-        if (acount.getSaldo() >= value){
-            Double newValue = acount.getSaldo() - value;
-            acount.setSaldo(newValue);
-            return "Saque realizado com sucesso";
+    public Transaction saque(Account account, Double value) {
+        if (account.getSaldo() >= value){
+            Double newValue = account.getSaldo() - value;
+            account.setSaldo(newValue);
+            User userAccount = account.getUser();
+            Transaction transaction = new Transaction();
+            transaction.setRemetente(userAccount.getNome());
+            transaction.setValor(value);
+            transaction.setTipoTransacao(TipoTransacao.SAQUE);
+            return transaction;
         }
 
-        return "Saldo insuficiente!";
+        return null;
     }
     public String transferencia(Account remetente, Account destinatario, Double value) {
         remetente.setSaldo(remetente.getSaldo() - value);

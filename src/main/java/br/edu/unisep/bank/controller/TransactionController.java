@@ -29,6 +29,8 @@ public class TransactionController {
     @Autowired AccountRepository accountRepository;
     @Autowired UserRepository userRepository;
 
+    @Autowired TransactionRepository transactionRepository;
+
     private AccountUseCase accountUseCase;
 
     public TransactionController() {
@@ -53,20 +55,20 @@ public class TransactionController {
         return repository.save(user);
     }
 
-    @PutMapping("/transacao/{id}")
-    public ResponseEntity<Transaction> updateTransaction(@PathVariable(value = "id") Long transactionId,
-                                           @Validated @RequestBody Transaction detalhes)
-    throws ResourceNotFoundException{
-        Transaction transaction = repository.findById(transactionId)
-                .orElseThrow(()->
-                        new ResourceNotFoundException("Transacao nao encontrado: " + transactionId));
-        transaction.setTypeTransactionId(detalhes.getTypeTransactionId());
-        transaction.setRemetente(detalhes.getRemetente());
-        transaction.setDestinatario(detalhes.getDestinatario());
-        transaction.setValor(detalhes.getValor());
-        final Transaction updatedUser = repository.save(transaction);
-        return ResponseEntity.ok(updatedUser);
-    }
+//    @PutMapping("/transacao/{id}")
+//    public ResponseEntity<Transaction> updateTransaction(@PathVariable(value = "id") Long transactionId,
+//                                           @Validated @RequestBody Transaction detalhes)
+//    throws ResourceNotFoundException{
+//        Transaction transaction = repository.findById(transactionId)
+//                .orElseThrow(()->
+//                        new ResourceNotFoundException("Transacao nao encontrado: " + transactionId));
+//        transaction.setTipoTransacao(detalhes.getTipoTransacao());
+//        transaction.setRemetente(detalhes.getRemetente());
+//        transaction.setDestinatario(detalhes.getDestinatario());
+//        transaction.setValor(detalhes.getValor());
+//        final Transaction updatedUser = repository.save(transaction);
+//        return ResponseEntity.ok(updatedUser);
+//    }
 
     @DeleteMapping("/transacao/{id}")
     public Map<String, Boolean> deleteTransaction(
@@ -109,9 +111,10 @@ public class TransactionController {
         Optional<Account> accountOptional = accountRepository.findById(user.getId());
         Account account = accountOptional.get();
 
-        String data = accountUseCase.saque(account, body.getValue());
+        Transaction transaction = accountUseCase.saque(account, body.getValue());
         accountRepository.save(account);
-        return data;
+        transactionRepository.save(transaction);
+        return "Transferencia realizada com sucesso.";
     }
 
 

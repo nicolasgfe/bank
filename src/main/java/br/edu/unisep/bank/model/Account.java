@@ -3,7 +3,6 @@ package br.edu.unisep.bank.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.service.annotation.GetExchange;
 
 @Entity
 @Table(name = "Account")
