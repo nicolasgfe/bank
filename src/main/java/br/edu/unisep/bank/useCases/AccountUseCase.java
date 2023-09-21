@@ -5,20 +5,23 @@ import br.edu.unisep.bank.model.Account;
 import java.util.Optional;
 
 public class AccountUseCase {
-    public String saque(Optional<Account> acount, Double value) {
-        if (acount.get().getSaldo() >= value){
-            Double newValue = acount.get().getSaldo() - value;
-            acount.get().setSaldo(newValue);
+    public String saque(Account acount, Double value) {
+        if (acount.getSaldo() >= value){
+            Double newValue = acount.getSaldo() - value;
+            acount.setSaldo(newValue);
             return "Saque realizado com sucesso";
         }
 
         return "Saldo insuficiente!" ;
     }
-    public String transftransferenciaerencia() {
-        return "";
+    public String transferencia(Account remetente, Account destinatario, Double value) {
+        remetente.setSaldo(remetente.getSaldo() - value);
+        destinatario.setSaldo(destinatario.getSaldo() + value);
+        String response = "transferencia realizada de "  + new String[]{remetente.getUser().getNome()};
+        return response;
     }
 
-    public String deposito(Account account, Double value) {
+    public String deposito(Account remetente, Account account, Double value) {
         Double newValue = account.getSaldo() + value;
         account.setSaldo(newValue);
         return account.getSaldo().toString();

@@ -2,8 +2,8 @@ package br.edu.unisep.bank.controller;
 
 import br.edu.unisep.bank.exception.ResourceNotFoundException;
 import br.edu.unisep.bank.model.Account;
-import br.edu.unisep.bank.model.Saque;
 import br.edu.unisep.bank.model.Transaction;
+import br.edu.unisep.bank.model.Transferencia;
 import br.edu.unisep.bank.repository.AccountRepository;
 import br.edu.unisep.bank.repository.TransactionRepository;
 import br.edu.unisep.bank.useCases.AccountUseCase;
@@ -81,60 +81,24 @@ public class TransactionController {
         return response;
     }
 
-    @PostMapping("/transacao/saque/{id}")
-    public String saque(@PathVariable(value = "id") Long accountId, @RequestBody Saque body) throws Exception{
+    @PostMapping("/trasacao/transferencia")
+    public String transaction(@RequestBody Transferencia body) throws Exception{
         //será  implementado para o mesmo pegar o id da conta pelo relacionamento com a conta. Ao inves de passar por parametros
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetails username = (UserDetails) auth.getPrincipal();
         String teste = username.getUsername();
-        Optional<Account> account = accountRepository.findById(accountId);
-        if (body.getValue() <= 0) {
-            return "O valor do saque não pode ser menor que zero!";
-        }
-
-        if (account.get().getUser().getUsername().equals(teste)) {
-            String data = accountUseCase.saque(account, body.getValue());
-            return data;
-        }
-        return "Você não tem permissão para ver saldo de outra conta!";
-    }
-
-//    @PostMapping("/transacao/deposito/{id}")
-//    public String deposito(@PathVariable(value = "id") Long accountId, @RequestBody Saque body) throws Exception{
-//        //será  implementado para o mesmo pegar o id da conta pelo relacionamento com a conta. Ao inves de passar por parametros
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        UserDetails username = (UserDetails) auth.getPrincipal();
-//        String teste = username.getUsername();
-//        Optional<Account> account = Optional.ofNullable(accountRepository.findById(accountId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Conta nao encontrada: " + accountId.toString())));;
+        Long accountIdRemetente = body.getAccountRemetente();
+        Long accountIdDestinatario = body.getAccountDestinatario();
+        Optional<Account> accountRemetenteOptional = accountRepository.findById(accountIdRemetente);
+        Optional<Account> accountDestinatarioOptinoal = accountRepository.findById(accountIdDestinatario);
 //        if (body.getValue() <= 0) {
-//            return "O valor do deposito não pode ser menor que zero!";
+//            return "O valor do saque não pode ser menor que zero!";
 //        }
-//
-//        String data = accountUseCase.deposito(account, body.getValue());
-//        return data;
-//    }
-@PostMapping("/transacao/deposito/{id}")
-public String deposito(@PathVariable(value = "id") Long accountId, @RequestBody Saque body) throws Exception {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    UserDetails userDetails = (UserDetails) auth.getPrincipal();
-    String username = userDetails.getUsername();
-
-    Optional<Account> accountOptional = accountRepository.findById(accountId);
-    if (accountOptional.isPresent()) {
-        Account account = accountOptional.get();
-        if (body.getValue() > 0) {
-            String data = accountUseCase.deposito(account, body.getValue());
-            accountRepository.save(account);
-            return data;
-        } else {
-            return "O valor do depósito não pode ser menor ou igual a zero!";
-        }
-    } else {
-        throw new ResourceNotFoundException("Conta não encontrada: " + accountId);
+        Account accountRemetente = accountRemetenteOptional.get();
+        Account accountDestinatario = accountDestinatarioOptinoal.get();
+        String data = accountUseCase.transferencia(accountRemetente, accountDestinatario, body.getValue());
+        accountRepository.save(accountRemetente);
+        accountRepository.save(accountDestinatario);
+        return "data";
     }
-}
-
-
-
 }
