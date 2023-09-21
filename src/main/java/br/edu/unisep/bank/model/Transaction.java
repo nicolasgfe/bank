@@ -15,10 +15,12 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(name = "remetente", nullable = false)
-    private String remetente;
-    @Column(name = "destinatario")
-    private String destinatario;
+    @ManyToOne
+    @JoinColumn(name = "remetente_id", nullable = false)
+    private Account remetente;
+    @ManyToOne
+    @JoinColumn(name = "destinatario_id")
+    private Account destinatario;
     @Column(name = "valor", nullable = false)
     private Double valor;
     @Enumerated(EnumType.STRING)

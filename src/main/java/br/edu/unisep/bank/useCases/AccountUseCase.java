@@ -15,7 +15,7 @@ public class AccountUseCase {
             account.setSaldo(newValue);
             User userAccount = account.getUser();
             Transaction transaction = new Transaction();
-            transaction.setRemetente(userAccount.getNome());
+            transaction.setRemetente(account);
             transaction.setValor(value);
             transaction.setTipoTransacao(TipoTransacao.SAQUE);
             return transaction;
