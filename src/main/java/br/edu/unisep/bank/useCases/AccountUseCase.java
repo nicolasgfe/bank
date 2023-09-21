@@ -17,11 +17,11 @@ public class AccountUseCase {
     public String transferencia(Account remetente, Account destinatario, Double value) {
         remetente.setSaldo(remetente.getSaldo() - value);
         destinatario.setSaldo(destinatario.getSaldo() + value);
-        String response = "transferencia realizada de "  + new String[]{remetente.getUser().getNome()};
-        return response;
+//        String response = "transferencia realizada de "  + new String[]{remetente.getUser().getNome()};
+        return "transferencia realizada com sucesso.";
     }
 
-    public String deposito(Account remetente, Account account, Double value) {
+    public String deposito(Account account,  Double value) {
         Double newValue = account.getSaldo() + value;
         account.setSaldo(newValue);
         return account.getSaldo().toString();

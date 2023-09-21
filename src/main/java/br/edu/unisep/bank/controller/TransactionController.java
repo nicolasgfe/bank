@@ -2,6 +2,7 @@ package br.edu.unisep.bank.controller;
 
 import br.edu.unisep.bank.exception.ResourceNotFoundException;
 import br.edu.unisep.bank.model.Account;
+import br.edu.unisep.bank.model.Saque;
 import br.edu.unisep.bank.model.Transaction;
 import br.edu.unisep.bank.model.Transferencia;
 import br.edu.unisep.bank.repository.AccountRepository;
@@ -71,7 +72,7 @@ public class TransactionController {
     @DeleteMapping("/transacao/{id}")
     public Map<String, Boolean> deleteTransaction(
             @PathVariable(value = "id") Long transactionId
-    ) throws Exception{
+    ) throws Exception {
         Transaction transaction = repository.findById(transactionId)
                 .orElseThrow(()->
                         new ResourceNotFoundException("Transacao nao encontrado: " + transactionId));
@@ -100,5 +101,26 @@ public class TransactionController {
         accountRepository.save(accountRemetente);
         accountRepository.save(accountDestinatario);
         return "data";
+    }
+
+    @PostMapping("/transacao/deposito/{id}")
+    public String deposito(@PathVariable(value = "id") Long accountId, @RequestBody Saque body) throws Exception {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        String username = userDetails.getUsername();
+
+        Optional<Account> accountOptional = accountRepository.findById(accountId);
+        if (accountOptional.isPresent()) {
+            Account account = accountOptional.get();
+            if (body.getValue() > 0) {
+                String data = accountUseCase.deposito(account, body.getValue());
+                accountRepository.save(account);
+                return data;
+            } else {
+                return "O valor do depósito não pode ser menor ou igual a zero!";
+            }
+        } else {
+            throw new ResourceNotFoundException("Conta não encontrada: " + accountId);
+        }
     }
 }
