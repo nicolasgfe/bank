@@ -1,12 +1,10 @@
 package br.edu.unisep.bank.controller;
 
 import br.edu.unisep.bank.exception.ResourceNotFoundException;
-import br.edu.unisep.bank.model.Account;
-import br.edu.unisep.bank.model.Saque;
-import br.edu.unisep.bank.model.Transaction;
-import br.edu.unisep.bank.model.Transferencia;
+import br.edu.unisep.bank.model.*;
 import br.edu.unisep.bank.repository.AccountRepository;
 import br.edu.unisep.bank.repository.TransactionRepository;
+import br.edu.unisep.bank.repository.UserRepository;
 import br.edu.unisep.bank.useCases.AccountUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +27,7 @@ public class TransactionController {
     private TransactionRepository repository;
 
     @Autowired AccountRepository accountRepository;
+    @Autowired UserRepository userRepository;
 
     private AccountUseCase accountUseCase;
 
@@ -84,18 +83,16 @@ public class TransactionController {
 
     @PostMapping("/trasacao/transferencia")
     public String transaction(@RequestBody Transferencia body) throws Exception{
-        //será  implementado para o mesmo pegar o id da conta pelo relacionamento com a conta. Ao inves de passar por parametros
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails username = (UserDetails) auth.getPrincipal();
-        String teste = username.getUsername();
-        Long accountIdRemetente = body.getAccountRemetente();
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        String username = userDetails.getUsername();
+        User user = userRepository.findByUsername(username);
+        Optional<Account> accountOptional = accountRepository.findById(user.getId());
+        Account accountRemetente = accountOptional.get();
+
+
         Long accountIdDestinatario = body.getAccountDestinatario();
-        Optional<Account> accountRemetenteOptional = accountRepository.findById(accountIdRemetente);
         Optional<Account> accountDestinatarioOptinoal = accountRepository.findById(accountIdDestinatario);
-//        if (body.getValue() <= 0) {
-//            return "O valor do saque não pode ser menor que zero!";
-//        }
-        Account accountRemetente = accountRemetenteOptional.get();
         Account accountDestinatario = accountDestinatarioOptinoal.get();
         String data = accountUseCase.transferencia(accountRemetente, accountDestinatario, body.getValue());
         accountRepository.save(accountRemetente);
@@ -103,36 +100,31 @@ public class TransactionController {
         return "data";
     }
 
-    @PostMapping("/transacao/saque/{id}")
-    public String saque(@PathVariable(value = "id") Long accountId, @RequestBody Saque body) throws Exception{
-        //será  implementado para o mesmo pegar o id da conta pelo relacionamento com a conta. Ao inves de passar por parametros
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails username = (UserDetails) auth.getPrincipal();
-        String teste = username.getUsername();
-        Optional<Account> accountOptional = accountRepository.findById(accountId);
-        Account account = accountOptional.get();
-//        if (body.getValue() >= 0) {
-//            return "O valor do saque não pode ser menor que zero!";
-//        }
-
-//        if (account.getUser().getUsername().equals(teste)) {
-        String data = accountUseCase.saque(account, body.getValue());
-//        }
-        accountRepository.save(account);
-        return data;
-//        return "Você não tem permissão para ver saldo de outra conta!";
-    }
-
-
-    @PostMapping("/transacao/deposito/{id}")
-    public String deposito(@PathVariable(value = "id") Long accountId, @RequestBody Saque body) throws Exception {
+    @PostMapping("/transacao/saque")
+    public String saque(@RequestBody Saque body) throws Exception{
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         String username = userDetails.getUsername();
+        User user = userRepository.findByUsername(username);
+        Optional<Account> accountOptional = accountRepository.findById(user.getId());
+        Account account = accountOptional.get();
 
-        Optional<Account> accountOptional = accountRepository.findById(accountId);
+        String data = accountUseCase.saque(account, body.getValue());
+        accountRepository.save(account);
+        return data;
+    }
+
+
+    @PostMapping("/transacao/deposito")
+    public String deposito(@RequestBody Saque body) throws Exception {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        String username = userDetails.getUsername();
+        User user = userRepository.findByUsername(username);
+        Optional<Account> accountOptional = accountRepository.findById(user.getId());
+        Account account = accountOptional.get();
+
         if (accountOptional.isPresent()) {
-            Account account = accountOptional.get();
             if (body.getValue() > 0) {
                 String data = accountUseCase.deposito(account, body.getValue());
                 accountRepository.save(account);
@@ -141,7 +133,7 @@ public class TransactionController {
                 return "O valor do depósito não pode ser menor ou igual a zero!";
             }
         } else {
-            throw new ResourceNotFoundException("Conta não encontrada: " + accountId);
+            throw new ResourceNotFoundException("Conta não encontrada: ");
         }
     }
 }

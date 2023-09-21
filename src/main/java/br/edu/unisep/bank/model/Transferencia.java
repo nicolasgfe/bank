@@ -6,7 +6,5 @@ public class Transferencia {
     @Getter
     private Double value;
     @Getter
-    private Long accountRemetente;
-    @Getter
     private Long accountDestinatario;
 }
