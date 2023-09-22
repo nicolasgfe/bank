@@ -55,20 +55,20 @@ public class TransactionController {
         return repository.save(user);
     }
 
-//    @PutMapping("/transacao/{id}")
-//    public ResponseEntity<Transaction> updateTransaction(@PathVariable(value = "id") Long transactionId,
-//                                           @Validated @RequestBody Transaction detalhes)
-//    throws ResourceNotFoundException{
-//        Transaction transaction = repository.findById(transactionId)
-//                .orElseThrow(()->
-//                        new ResourceNotFoundException("Transacao nao encontrado: " + transactionId));
-//        transaction.setTipoTransacao(detalhes.getTipoTransacao());
-//        transaction.setRemetente(detalhes.getRemetente());
-//        transaction.setDestinatario(detalhes.getDestinatario());
-//        transaction.setValor(detalhes.getValor());
-//        final Transaction updatedUser = repository.save(transaction);
-//        return ResponseEntity.ok(updatedUser);
-//    }
+    @PutMapping("/transacao/{id}")
+    public ResponseEntity<Transaction> updateTransaction(@PathVariable(value = "id") Long transactionId,
+                                           @Validated @RequestBody Transaction detalhes)
+    throws ResourceNotFoundException{
+        Transaction transaction = repository.findById(transactionId)
+                .orElseThrow(()->
+                        new ResourceNotFoundException("Transacao nao encontrado: " + transactionId));
+        transaction.setTipoTransacao(detalhes.getTipoTransacao());
+        transaction.setRemetente(detalhes.getRemetente());
+        transaction.setDestinatario(detalhes.getDestinatario());
+        transaction.setValor(detalhes.getValor());
+        final Transaction updatedUser = repository.save(transaction);
+        return ResponseEntity.ok(updatedUser);
+    }
 
     @DeleteMapping("/transacao/{id}")
     public Map<String, Boolean> deleteTransaction(
@@ -96,10 +96,11 @@ public class TransactionController {
         Long accountIdDestinatario = body.getAccountDestinatario();
         Optional<Account> accountDestinatarioOptinoal = accountRepository.findById(accountIdDestinatario);
         Account accountDestinatario = accountDestinatarioOptinoal.get();
-        String data = accountUseCase.transferencia(accountRemetente, accountDestinatario, body.getValue());
+        Transaction transaction = accountUseCase.transferencia(accountRemetente, accountDestinatario, body.getValue());
         accountRepository.save(accountRemetente);
         accountRepository.save(accountDestinatario);
-        return "data";
+        transactionRepository.save(transaction);
+        return "Transferencia realizada com sucesso.";
     }
 
     @PostMapping("/transacao/saque")
@@ -129,9 +130,10 @@ public class TransactionController {
 
         if (accountOptional.isPresent()) {
             if (body.getValue() > 0) {
-                String data = accountUseCase.deposito(account, body.getValue());
+                Transaction transaction = accountUseCase.deposito(account, body.getValue());
+                transactionRepository.save(transaction);
                 accountRepository.save(account);
-                return data;
+                return "Deposito realizado com sucesso.";
             } else {
                 return "O valor do depósito não pode ser menor ou igual a zero!";
             }
