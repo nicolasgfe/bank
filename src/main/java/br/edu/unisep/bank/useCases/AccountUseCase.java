@@ -13,7 +13,6 @@ public class AccountUseCase {
         if (account.getSaldo() >= value){
             Double newValue = account.getSaldo() - value;
             account.setSaldo(newValue);
-            User userAccount = account.getUser();
             Transaction transaction = new Transaction();
             transaction.setRemetente(account);
             transaction.setValor(value);
@@ -23,17 +22,28 @@ public class AccountUseCase {
 
         return null;
     }
-    public String transferencia(Account remetente, Account destinatario, Double value) {
+    public Transaction transferencia(Account remetente, Account destinatario, Double value) {
         remetente.setSaldo(remetente.getSaldo() - value);
         destinatario.setSaldo(destinatario.getSaldo() + value);
 //        String response = "transferencia realizada de "  + new String[]{remetente.getUser().getNome()};
-        return "transferencia realizada com sucesso.";
+//        return "transferencia realizada com sucesso.";
+        Transaction transaction = new Transaction();
+        transaction.setRemetente(remetente);
+        transaction.setDestinatario(destinatario);
+        transaction.setValor(value);
+        transaction.setTipoTransacao(TipoTransacao.SAQUE);
+        return transaction;
     }
 
-    public String deposito(Account account,  Double value) {
+    public Transaction deposito(Account account,  Double value) {
         Double newValue = account.getSaldo() + value;
         account.setSaldo(newValue);
-        return account.getSaldo().toString();
+
+        Transaction transaction = new Transaction();
+        transaction.setRemetente(account);
+        transaction.setValor(value);
+        transaction.setTipoTransacao(TipoTransacao.DEPOSITO);
+        return transaction;
     }
 
     public String extrato () {
