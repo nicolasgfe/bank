@@ -3,9 +3,14 @@ package br.edu.unisep.bank.useCases;
 import br.edu.unisep.bank.Enum.TipoTransacao;
 import br.edu.unisep.bank.model.Account;
 import br.edu.unisep.bank.model.Transaction;
-import br.edu.unisep.bank.model.User;
-import br.edu.unisep.bank.repository.TransactionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 
 public class AccountUseCase {
@@ -46,7 +51,27 @@ public class AccountUseCase {
         return transaction;
     }
 
-    public String extrato () {
+    public String extrato (Account account) {
+        Document document = new Document();
+        try {
+            PdfWriter.getInstance(document, new FileOutputStream("C:\\Nova Pasta/PDF_extrato.pdf"));
+            document.open();
+
+            document.add(new Paragraph("Gerando PDF - Java"));
+            document.add(new Paragraph(account.getUser().getNome()));
+            document.add(new Paragraph(account.getSaldo().toString()));
+            document.add(new Paragraph(account.getNumberAccount()));
+
+
+
+        }
+        catch(DocumentException de) {
+                System.err.println(de.getMessage());
+            }
+      catch(IOException ioe) {
+                System.err.println(ioe.getMessage());
+            }
+        document.close();
         return "extrato";
     }
 

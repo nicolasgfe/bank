@@ -141,4 +141,15 @@ public class TransactionController {
             throw new ResourceNotFoundException("Conta não encontrada: ");
         }
     }
+
+    @PostMapping("/transacao/pdf")
+    public void deposito() throws Exception {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        String username = userDetails.getUsername();
+        User user = userRepository.findByUsername(username);
+        Optional<Account> accountOptional = accountRepository.findById(user.getId());
+        Account account = accountOptional.get();
+        accountUseCase.extrato(account);
+    }
 }
