@@ -11,6 +11,8 @@ import com.itextpdf.text.pdf.PdfWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class AccountUseCase {
@@ -51,17 +53,16 @@ public class AccountUseCase {
         return transaction;
     }
 
-    public String extrato (Account account) {
+    public Transaction extrato (Account account, List<Transaction> transactionsBy, List<Transaction> transactionsfrom) {
         Document document = new Document();
         try {
             PdfWriter.getInstance(document, new FileOutputStream("C:\\Nova Pasta/PDF_extrato.pdf"));
             document.open();
 
             document.add(new Paragraph("Gerando PDF - Java"));
-            document.add(new Paragraph(account.getUser().getNome()));
+            document.add(new Paragraph("Transações do " + account.getUser().getNome()));
             document.add(new Paragraph(account.getSaldo().toString()));
             document.add(new Paragraph(account.getNumberAccount()));
-
 
 
         }
@@ -72,7 +73,7 @@ public class AccountUseCase {
                 System.err.println(ioe.getMessage());
             }
         document.close();
-        return "extrato";
+        return null;
     }
 
     public String extratoDetalhado() {

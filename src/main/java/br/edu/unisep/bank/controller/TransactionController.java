@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.HashMap;
 import java.util.List;
@@ -84,7 +85,7 @@ public class TransactionController {
     }
 
     @PostMapping("/trasacao/transferencia")
-    public String transaction(@RequestBody Transferencia body) throws Exception{
+    public ResponseEntity<Transaction> transaction(@RequestBody Transferencia body) throws Exception{
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         String username = userDetails.getUsername();
@@ -100,11 +101,11 @@ public class TransactionController {
         accountRepository.save(accountRemetente);
         accountRepository.save(accountDestinatario);
         transactionRepository.save(transaction);
-        return "Transferencia realizada com sucesso.";
+        return ResponseEntity.ok().body(transaction);
     }
 
     @PostMapping("/transacao/saque")
-    public String saque(@RequestBody Saque body) throws Exception{
+    public ResponseEntity<Transaction> saque(@RequestBody Saque body) throws Exception{
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         String username = userDetails.getUsername();
@@ -115,12 +116,12 @@ public class TransactionController {
         Transaction transaction = accountUseCase.saque(account, body.getValue());
         accountRepository.save(account);
         transactionRepository.save(transaction);
-        return "Transferencia realizada com sucesso.";
+        return ResponseEntity.ok().body(transaction);
     }
 
 
     @PostMapping("/transacao/deposito")
-    public String deposito(@RequestBody Saque body) throws Exception {
+    public ResponseEntity<Transaction> deposito(@RequestBody Saque body) throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         String username = userDetails.getUsername();
@@ -128,14 +129,15 @@ public class TransactionController {
         Optional<Account> accountOptional = accountRepository.findById(user.getId());
         Account account = accountOptional.get();
 
+
         if (accountOptional.isPresent()) {
             if (body.getValue() > 0) {
                 Transaction transaction = accountUseCase.deposito(account, body.getValue());
                 transactionRepository.save(transaction);
                 accountRepository.save(account);
-                return "Deposito realizado com sucesso.";
+                return ResponseEntity.ok().body(transaction);
             } else {
-                return "O valor do depósito não pode ser menor ou igual a zero!";
+                throw new ResourceNotFoundException("O valor do depósito não pode ser menor ou igual a zero!");
             }
         } else {
             throw new ResourceNotFoundException("Conta não encontrada: ");
@@ -150,6 +152,10 @@ public class TransactionController {
         User user = userRepository.findByUsername(username);
         Optional<Account> accountOptional = accountRepository.findById(user.getId());
         Account account = accountOptional.get();
-        accountUseCase.extrato(account);
+
+        List<Transaction> transaction = transactionRepository.findTransactionByUser(account.getId());
+        List<Transaction> transactionTransfer = transactionRepository.findTransactionfromUser(account.getId());
+
+        accountUseCase.extrato(account, transaction, transactionTransfer);
     }
 }

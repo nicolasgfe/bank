@@ -34,7 +34,6 @@ public class AccountController {
 
     @PostMapping("/conta")
     public Account createAccount(@Validated @RequestBody Account account){
-//        account.setSaldo(0.00);
         return repository.save(account);
     }
 

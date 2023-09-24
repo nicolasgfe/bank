@@ -85,16 +85,16 @@
 			<version>5.5.13.2</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk16 -->
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk16</artifactId>
-			<version>1.44</version>
-		</dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk15</artifactId>
-			<version>1.44</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.bouncycastle</groupId>-->
+<!--			<artifactId>bcprov-jdk16</artifactId>-->
+<!--			<version>1.44</version>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>org.bouncycastle</groupId>-->
+<!--			<artifactId>bcprov-jdk15</artifactId>-->
+<!--			<version>1.44</version>-->
+<!--		</dependency>-->
 
 	</dependencies>
 
