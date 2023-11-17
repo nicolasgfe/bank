@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  app:
+    image: nicolasgfe/bank
+    container_name: server
+    ports:
+      - "8080:8080"
+    networks:
+      - bank-network
+    tty: true
+    environment:
+      spring.datasource.url: jdbc:mysql://db:3306/pg3_vestidobank?useTimezone=true&serverTimezone=UTC
+      spring.datasource.username: admin
+      spring.datasource.password: admin
+      spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL57Dialect
+      spring.jpa.hibernate.ddl-auto: update
+      springdoc.api-docs.path: /api-docs.json
+      springdoc.swagger-ui.operations-sorter: method
+      jwt.secret: banktoken
+      spring.main.allow-circular-references: true
+    depends_on:
+      - db
+    volumes:
+      -
+
+  db:
+    platform: linux/x86_64
+    image: mysql:5.7
+    container_name: db
+    restart: always
+    tty: true
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=admin
+      - MYSQL_DATABASE=bank
+      - MYSQL_ROOT_PASSWORD=password
+    networks:
+      - bank-network
+
+networks:
+  bank-network:
+    driver: bridge
+
