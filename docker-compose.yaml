@@ -22,7 +22,7 @@ services:
     depends_on:
       - db
     volumes:
-      -
+      - .:/bankapp
 
   db:
     platform: linux/x86_64
