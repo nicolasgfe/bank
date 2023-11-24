@@ -1,0 +1,49 @@
+name: Build Automatizado
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: bank
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Versao java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "17"
+          distribution: "adopt"
+
+      - name: Build do projeto
+        run: mvn clean package -DskipTests
+
+      - name: Login
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Imagem Docker
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: .
+          file: ./Dockerfile
+          tags: nicolasgfe/bank:latest
+
+      - name: SSH key ec2
+        uses: appleboy/scp-action@master
+        with:
+          debug: true
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME_EC2 }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSH_KEY_PRIVATE }}
+          source: "."
+          target : "./bank"
